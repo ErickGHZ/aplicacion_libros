@@ -47,6 +47,7 @@ class DBManager {
     book.controlNum = await dbClient!.insert(TABLE, book.toMap());
     return book;
   }
+
   //Select
   Future<List<Book>> getBooks()async{
     var dbClient = await (db);
@@ -63,6 +64,24 @@ class DBManager {
     }
     return books;
   }
+
+  Future<List<Book>> searchBooks(String title) async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient!.query(
+      TABLE,
+      columns: [ID, TITLE, AUTHOR, PUBLISHER, PAGES, EDITION, ISBN, PHOTO_NAME],
+      where: "$TITLE LIKE ?",
+      whereArgs: ['%$title%'], // El signo % se utiliza para buscar coincidencias parciales en el título.
+    );
+    List<Book> books = [];
+    if (maps.isNotEmpty) {
+      for (int i = 0; i < maps.length; i++) {
+        books.add(Book.formMap(maps[i] as Map<String, dynamic>));
+      }
+    }
+    return books;
+  }
+
   //Delete
   Future<int> delete(int id) async {
     var dbClient = await (db);

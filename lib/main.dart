@@ -40,6 +40,8 @@ class _HomePageState extends State<HomePage> {
   TextEditingController editionController = TextEditingController();
   TextEditingController isbnController = TextEditingController();
   TextEditingController controlNumController = TextEditingController();
+  TextEditingController buscarLibroController = TextEditingController();
+
   String? title = '';
   String? author = '';
   String? publisher = '';
@@ -60,6 +62,14 @@ class _HomePageState extends State<HomePage> {
       Bookss = dbHelper.getBooks();
     });
   }
+
+  searchBooks() {
+    String query = buscarLibroController.text;
+    setState(() {
+      Bookss = dbHelper.searchBooks(query);
+    });
+  }
+
 
   pickImageFromGallery() {
     ImagePicker imagePicker = ImagePicker();
@@ -102,16 +112,6 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           verticalDirection: VerticalDirection.down,
           children: [
-            const SizedBox(height: 10),
-            //TextFormField(
-            //controller: controlNumController,
-            //keyboardType: TextInputType.number,
-            //decoration: const InputDecoration(
-            //labelText: 'Control Number',
-            // ),
-            //validator: (val) => val!.isEmpty ? 'Enter Control Number' : null,
-            //onSaved: (val) => controlNumController.text = val!,
-            // ),
             TextFormField(
               controller: titleController,
               keyboardType: TextInputType.text,
@@ -238,11 +238,43 @@ class _HomePageState extends State<HomePage> {
                 )
               ],
             ),
+            Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    controller: buscarLibroController,
+                    keyboardType: TextInputType.text,
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar libros',
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    searchBooks();
+                    print('Texto ingresado en el nuevo campo: ${buscarLibroController.text}');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
+                  child: Text("Buscar"),
+                ),
+              ],
+            ),
+
           ],
         ),
       ),
     );
   }
+
+
+
+
+
 
   SingleChildScrollView userDataTable(List<Book>? Bookss){
     return SingleChildScrollView(
@@ -308,12 +340,10 @@ class _HomePageState extends State<HomePage> {
               future: Bookss,
               builder: (context, AsyncSnapshot<dynamic> snapshot){
                 if(snapshot.hasData){
-                  print(snapshot.data);
                   return userDataTable(snapshot.data);
                 }
                 if(!snapshot.hasData){
-                  print("Data Not Found");
-                }
+                 }
                 return const CircularProgressIndicator();
               }),
         ));
@@ -356,6 +386,8 @@ class _HomePageState extends State<HomePage> {
       refreshList();
     }
   }
+
+
 
 
   @override
